@@ -1,0 +1,536 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Siap SKD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: satu halaman, tiga tampilan (beranda, ujian dengan panel nomor soal, hasil + pembahasan). Gaya stiker tebal dengan bayangan keras. */
+:root{
+  --bg:#F3EEE3; --surface:#FBF8F1; --ink:#111111; --muted:#5E584B;
+  --line:#111111; --shadow:#111111; --soft:#E7DFCE; --yellow:#E8C873; --fill-ink:#111111;
+  --twk:#D99B82; --tiu:#9DB3C4; --tkp:#AFBF94;
+  --good-bg:#DDE8CC; --good-tx:#2F5A1E; --bad-bg:#F2D5CB; --bad-tx:#8E2B14; --warn-bg:#F1E2B5; --focus:#1F4E8C;
+  --f-display:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-body:'Montserrat',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1E1E1C; --surface:#2A2A27; --ink:#D8CBB3; --muted:#A39A87; --line:#B9AD96; --shadow:#0C0C0B; --soft:#363531; --yellow:#D8CBB3; --twk:#C98F73; --tiu:#8CA2B1; --tkp:#98AE88;
+    --good-bg:#2E3A25; --good-tx:#B5D39A; --bad-bg:#47281F; --bad-tx:#F0A992; --warn-bg:#4A4023; --focus:#E8C873; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1E1E1C; --surface:#2A2A27; --ink:#D8CBB3; --muted:#A39A87; --line:#B9AD96; --shadow:#0C0C0B; --soft:#363531; --yellow:#D8CBB3; --twk:#C98F73; --tiu:#8CA2B1; --tkp:#98AE88;
+  --good-bg:#2E3A25; --good-tx:#B5D39A; --bad-bg:#47281F; --bad-tx:#F0A992; --warn-bg:#4A4023; --focus:#E8C873; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding:12px 0}
+.top-in{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--yellow);color:var(--fill-ink);border:2.5px solid var(--line);display:grid;place-items:center;transform:rotate(-6deg);box-shadow:0 3px 0 var(--shadow)}
+.mode{color:var(--muted);font-weight:700;font-size:.9rem}
+
+.btn{font-family:var(--f-display);font-weight:600;font-size:1rem;background:var(--yellow);color:var(--fill-ink);border:2.5px solid var(--line);border-radius:14px;padding:10px 18px;box-shadow:0 4px 0 var(--shadow);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.btn.big{font-size:1.2rem;padding:14px 26px;border-radius:18px}
+.btn.alt{background:var(--surface);color:var(--ink)}
+.btn.sm{padding:6px 12px;font-size:.9rem;box-shadow:0 3px 0 var(--shadow)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.iconbtn{width:42px;height:38px;padding:0;display:inline-grid;place-items:center}
+.iconbtn svg{display:block}
+
+/* beranda */
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:32px;align-items:center;padding:28px 0 36px}
+.kicker{font-weight:800;text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;color:var(--muted);margin:0 0 12px}
+.hero h1{font-size:clamp(1.9rem,4.8vw,3rem);font-weight:800;letter-spacing:-.02em}
+.hl{display:inline-block;background:var(--yellow);color:var(--fill-ink);padding:0 .22em;border-radius:10px;transform:rotate(-1.5deg)}
+.lead{font-size:1.1rem;max-width:34em;margin:16px 0 24px}
+.cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.last{font-size:.92rem;color:var(--muted);font-weight:700}
+.ticket{background:var(--surface);border:2.5px solid var(--line);border-radius:22px;box-shadow:8px 8px 0 var(--shadow);transform:rotate(1.6deg);overflow:hidden;min-width:0}
+.t-top{background:var(--yellow);color:var(--fill-ink);padding:18px 22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2.5px dashed var(--line)}
+.t-big{font-family:var(--f-display);font-weight:700;font-size:2.3rem;line-height:1}
+.t-big small{display:block;font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.t-list{list-style:none;margin:0;padding:14px 22px 18px;display:grid;gap:10px}
+.t-list li{display:flex;align-items:center;gap:10px;font-weight:700}
+.t-list span.cnt{margin-left:auto;font-family:var(--f-display);font-size:1.15rem}
+.badge{display:inline-block;font-family:var(--f-display);font-weight:600;font-size:.85rem;padding:2px 10px;border-radius:9px;border:2px solid var(--line);color:var(--fill-ink)}
+.badge.c-TWK{background:var(--twk)}.badge.c-TIU{background:var(--tiu)}.badge.c-TKP{background:var(--tkp)}
+h2{font-size:1.5rem;margin-bottom:16px}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:28px}
+.cat{background:var(--surface);border:2.5px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 5px 0 var(--shadow);min-width:0}
+.cat h3{font-size:1.15rem}
+.cat p{margin:0;color:var(--muted);flex:1}
+.cat .top-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.note{background:var(--soft);border-radius:14px;padding:14px 18px;font-size:.93rem;color:var(--muted);max-width:60em}
+.note b{color:var(--ink)}
+
+/* ujian */
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-family:var(--f-display);font-weight:600;background:var(--surface);border:2.5px solid var(--line);border-radius:12px;padding:6px 14px;box-shadow:0 3px 0 var(--shadow)}
+.tab small{font-family:var(--f-body);font-weight:700;color:var(--muted);margin-left:4px}
+.tab.on{color:var(--fill-ink)}
+.tab.on[data-c=TWK]{background:var(--twk)}.tab.on[data-c=TIU]{background:var(--tiu)}.tab.on[data-c=TKP]{background:var(--tkp)}
+.tab.on small{color:var(--fill-ink)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--surface);border:2.5px solid var(--line);border-radius:20px;padding:20px;box-shadow:6px 6px 0 var(--shadow);min-width:0}
+.card[data-c=TWK]{--cat:var(--twk)}.card[data-c=TIU]{--cat:var(--tiu)}.card[data-c=TKP]{--cat:var(--tkp)}
+.q-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.q-head .no{font-family:var(--f-display);font-weight:600;color:var(--muted)}
+.q-head .sp{margin-left:auto}
+.flagbtn.on{background:var(--yellow);color:var(--fill-ink)}
+.q-text{font-size:1.02rem;font-weight:600;white-space:pre-line;margin:0 0 18px;max-width:42em}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:flex-start;gap:12px;text-align:left;background:var(--surface);border:2.5px solid var(--line);border-radius:14px;padding:11px 14px;box-shadow:0 3px 0 var(--shadow);transition:transform .08s;min-width:0;width:100%}
+.opt:hover{transform:translateY(-1px)}
+.ltr{flex:none;width:32px;height:32px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:grid;place-items:center;font-family:var(--f-display);font-weight:600}
+.txt{flex:1;min-width:0;padding-top:2px;overflow-wrap:anywhere}
+.tag{flex:none;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:8px;background:var(--soft);align-self:center}
+.opt.sel{background:var(--cat);color:var(--fill-ink)}
+.opt.sel .ltr{background:#FBF8F1;color:#111111}
+.opt.sel .tag{background:#FBF8F1;color:#111111}
+.opt.ok{background:var(--good-bg);border-color:var(--good-tx)}
+.opt.no{background:var(--bad-bg);border-color:var(--bad-tx)}
+.opt.mid{background:var(--warn-bg)}
+.opt[aria-disabled=true]{cursor:default}
+.opt[aria-disabled=true]:hover{transform:none}
+.expl{margin-top:18px;border-radius:14px;background:var(--soft);padding:14px 16px;border-left:6px solid var(--cat,var(--yellow))}
+.expl h4{font-family:var(--f-display);margin:0 0 4px;font-size:1rem}
+.expl p{margin:0;white-space:pre-line}
+.pager{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.pager .sp{margin-left:auto}
+.navtoggle{margin-bottom:12px}
+.side{display:none;background:var(--surface);border:2.5px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 5px 0 var(--shadow);min-width:0}
+.side.open{display:block}
+.side h3{font-size:1.05rem;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:8px}
+.n{position:relative;height:38px;border-radius:10px;border:2px solid var(--line);background:var(--surface);font-family:var(--f-display);font-weight:600;font-size:.9rem;padding:0}
+.n.done[data-c=TWK]{background:var(--twk);color:var(--fill-ink)}
+.n.done[data-c=TIU]{background:var(--tiu);color:var(--fill-ink)}
+.n.done[data-c=TKP]{background:var(--tkp);color:var(--fill-ink)}
+.n.ok{background:var(--good-bg)}.n.no{background:var(--bad-bg)}.n.mid{background:var(--warn-bg)}
+.n.cur{outline:3px solid var(--focus);outline-offset:2px}
+.n.flag::after{content:"";position:absolute;top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;background:var(--yellow);border:2px solid var(--line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:.82rem;color:var(--muted);font-weight:700}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;border:2px solid var(--line);vertical-align:-1px;margin-right:5px;background:var(--soft)}
+.legend i.f{background:var(--yellow);border-radius:50%}
+.timer{font-family:var(--f-display);font-weight:600;font-size:1.3rem;padding:4px 16px;border:2.5px solid var(--line);border-radius:999px;background:var(--surface);font-variant-numeric:tabular-nums}
+.timer.warn{background:var(--warn-bg)}
+.timer.urgent{background:var(--bad-bg);color:var(--bad-tx);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.timer.urgent{animation:none}.btn,.opt{transition:none}}
+@media (min-width:900px){
+  .layout.has-side{grid-template-columns:minmax(0,1fr) 300px}
+  .side{display:block;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px)}
+  .navtoggle{display:none}
+}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.ticket{transform:none}}
+
+/* hasil */
+.res{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.score{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.score .big{font-family:var(--f-display);font-weight:700;font-size:clamp(3.4rem,12vw,5.2rem);line-height:1}
+.score .big small{font-size:1.4rem;color:var(--muted);font-weight:600}
+.banner{background:var(--warn-bg);border:2.5px solid var(--line);border-radius:14px;padding:10px 14px;font-weight:700;margin-bottom:14px}
+.bars{display:grid;gap:16px;margin-top:20px}
+.bar-row .lab{display:flex;justify-content:space-between;gap:10px;font-weight:800;margin-bottom:6px;flex-wrap:wrap}
+.track{height:20px;border-radius:999px;background:var(--soft);border:2.5px solid var(--line);overflow:hidden}
+.fill{height:100%;border-right:2.5px solid var(--line)}
+.fill.c-TWK{background:var(--twk)}.fill.c-TIU{background:var(--tiu)}.fill.c-TKP{background:var(--tkp)}
+.sub{font-size:.88rem;color:var(--muted);margin-top:4px}
+.stats{display:flex;gap:10px 28px;flex-wrap:wrap;margin-top:18px;font-weight:700}
+.stats span b{font-family:var(--f-display);font-size:1.2rem}
+.acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+
+/* pembahasan */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 18px}
+.chip{font-weight:800;font-size:.9rem;background:var(--surface);border:2.5px solid var(--line);border-radius:999px;padding:4px 14px}
+.chip.on{background:var(--yellow);color:var(--fill-ink)}
+.rv{display:grid;gap:20px}
+.pill{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;padding:2px 10px;border-radius:999px;border:2px solid var(--line)}
+.pill.ok{background:var(--good-bg);color:var(--good-tx)}
+.pill.salah{background:var(--bad-bg);color:var(--bad-tx)}
+.pill.part{background:var(--warn-bg)}
+.pill.kosong{background:var(--soft);color:var(--muted)}
+.empty{padding:30px;text-align:center;color:var(--muted);font-weight:700}
+
+.veil{position:fixed;inset:0;z-index:40;background:rgba(17,17,15,.6);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dlg{background:var(--surface);border:2.5px solid var(--line);border-radius:20px;padding:22px;max-width:420px;width:100%;box-shadow:6px 6px 0 var(--shadow)}
+.dlg p{margin:10px 0 18px}
+.dlg .row{display:flex;gap:12px;flex-wrap:wrap}
+</style>
+
+<div id="app"></div>
+
+<script>
+(function(){
+'use strict';
+/* BANK-START */
+var BANK=[];
+var W=function(q,o,a,e){BANK.push({c:'TWK',q:q,o:o,a:a,e:e});};
+var U=function(q,o,a,e){BANK.push({c:'TIU',q:q,o:o,a:a,e:e});};
+var K=function(q,opts,e){BANK.push({c:'TKP',q:q,o:opts.map(function(x){return x[0];}),s:opts.map(function(x){return x[1];}),e:e});};
+
+/* ---------- TWK (30) ---------- */
+W('Lambang sila ketiga Pancasila, Persatuan Indonesia, adalah…',['Pohon beringin','Kepala banteng','Rantai','Bintang','Padi dan kapas'],0,'Sila ke-3 berlambang pohon beringin. Bintang untuk sila ke-1, rantai untuk sila ke-2, kepala banteng untuk sila ke-4, dan padi dan kapas untuk sila ke-5.');
+W('Tujuan negara Indonesia, antara lain melindungi segenap bangsa dan memajukan kesejahteraan umum, tercantum dalam Pembukaan UUD 1945 alinea…',['pertama','kedua','ketiga','keempat','semua alinea'],3,'Tujuan negara dan dasar negara Pancasila dimuat pada alinea keempat. Alinea pertama menegaskan kemerdekaan sebagai hak segala bangsa.');
+W('Isi ikrar ketiga Sumpah Pemuda 1928 adalah…',['Bertanah air satu, tanah air Indonesia','Berbangsa satu, bangsa Indonesia','Menjunjung bahasa persatuan, bahasa Indonesia','Merdeka atau mati','Bersatu kita teguh'],2,'Tiga ikrar berurutan: bertanah air satu, berbangsa satu, dan menjunjung bahasa persatuan. Bahasa persatuan adalah ikrar ketiga.');
+W('Hari Lahir Pancasila diperingati setiap 1 Juni karena pada tanggal itu…',['Soekarno menyampaikan pidato tentang dasar negara di sidang BPUPKI','Naskah Proklamasi dibacakan','Piagam Jakarta ditandatangani','UUD 1945 disahkan PPKI','Dekrit Presiden dikeluarkan'],0,'Pada 1 Juni 1945 Soekarno memaparkan lima dasar negara dalam sidang BPUPKI. Gagasan itu kemudian dikenal sebagai Pancasila.');
+W('Naskah proklamasi kemerdekaan Indonesia diketik oleh…',['Sayuti Melik','Ir. Soekarno','Drs. Mohammad Hatta','Achmad Soebardjo','Fatmawati'],0,'Soekarno menuliskan konsep naskah, lalu Sayuti Melik mengetiknya dengan beberapa perubahan.');
+W('Berapa kali UUD 1945 diamandemen sejak era reformasi?',['Dua kali','Tiga kali','Empat kali','Lima kali','Enam kali'],2,'Perubahan dilakukan empat kali dalam Sidang MPR pada 1999, 2000, 2001, dan 2002.');
+W('Lembaga negara yang berwenang menguji undang-undang terhadap UUD 1945 adalah…',['Mahkamah Agung','Mahkamah Konstitusi','Komisi Yudisial','DPR','MPR'],1,'Pengujian undang-undang terhadap UUD adalah kewenangan Mahkamah Konstitusi. Mahkamah Agung menguji peraturan di bawah undang-undang.');
+W('Menurut Pasal 1 ayat (3) UUD NRI 1945, Indonesia adalah negara…',['kekuasaan','hukum','federal','agama','kerajaan'],1,'Pasal 1 ayat (3) menyatakan bahwa Negara Indonesia adalah negara hukum.');
+W('Semboyan Bhinneka Tunggal Ika diambil dari kitab…',['Negarakertagama','Sutasoma','Pararaton','Arjunawiwaha','Bharatayuddha'],1,'Semboyan ini berasal dari kitab Sutasoma karya Mpu Tantular. Artinya berbeda-beda tetapi tetap satu.');
+W('Empat pilar kebangsaan terdiri atas…',['Pancasila, UUD NRI 1945, NKRI, dan Bhinneka Tunggal Ika','Pancasila, UUD NRI 1945, Proklamasi, dan Garuda','Pancasila, NKRI, Sumpah Pemuda, dan Bhinneka Tunggal Ika','UUD NRI 1945, TAP MPR, NKRI, dan Pancasila','Pancasila, demokrasi, NKRI, dan Bhinneka Tunggal Ika'],0,'Empat pilar kebangsaan: Pancasila, UUD NRI 1945, NKRI, dan Bhinneka Tunggal Ika.');
+W('Lebar Zona Ekonomi Eksklusif (ZEE) Indonesia diukur dari garis pangkal sejauh…',['12 mil laut','24 mil laut','100 mil laut','200 mil laut','350 mil laut'],3,'Menurut UNCLOS 1982, ZEE selebar 200 mil laut dari garis pangkal. Angka 12 mil laut adalah lebar laut teritorial.');
+W('Deklarasi Djuanda 1957 menegaskan bahwa…',['laut di antara pulau-pulau Indonesia merupakan satu kesatuan wilayah','lebar laut teritorial Indonesia hanya 3 mil dari garis pantai','Indonesia memiliki ZEE 200 mil laut','Indonesia keluar dari PBB','Irian Barat menjadi bagian Indonesia'],0,'Deklarasi Djuanda memperkenalkan konsep negara kepulauan: laut di antara pulau menjadi bagian wilayah, bukan pemisah. Aturan 3 mil adalah warisan kolonial yang diubah oleh deklarasi ini.');
+W('Hak dan kewajiban warga negara ikut serta dalam usaha pertahanan dan keamanan negara diatur dalam UUD NRI 1945 Pasal…',['27 ayat (1)','28 ayat (1)','30 ayat (1)','31 ayat (1)','33 ayat (1)'],2,'Pasal 30 ayat (1) mengatur hak dan kewajiban setiap warga negara dalam usaha pertahanan dan keamanan negara.');
+W('Salah satu ciri Pancasila sebagai ideologi terbuka adalah…',['nilai dasarnya tetap, penjabarannya dapat berkembang mengikuti zaman','nilai dasarnya boleh diganti kapan saja','tidak boleh ditafsirkan sama sekali','hanya berlaku bagi pemerintah','mengikuti ideologi negara lain'],0,'Ideologi terbuka mempertahankan nilai dasar, tetapi penjabaran dan pelaksanaannya dapat menyesuaikan perkembangan zaman.');
+W('Pasal 27 ayat (1) UUD 1945 menyatakan bahwa semua warga negara bersamaan kedudukannya di dalam…',['hukum dan pemerintahan','ekonomi dan politik','agama dan budaya','pendidikan dan kesehatan','keluarga dan masyarakat'],0,'Bunyinya: segala warga negara bersamaan kedudukannya di dalam hukum dan pemerintahan, serta wajib menjunjung hukum dan pemerintahan itu.');
+W('Menurut Pasal 1 ayat (2) UUD NRI 1945, kedaulatan berada di tangan…',['Presiden','rakyat dan dilaksanakan menurut Undang-Undang Dasar','MPR sepenuhnya','DPR','Mahkamah Konstitusi'],1,'Setelah perubahan UUD, kedaulatan berada di tangan rakyat dan dilaksanakan menurut UUD, bukan lagi sepenuhnya oleh MPR.');
+W('Hasil sidang PPKI pada 18 Agustus 1945 berikut ini benar, kecuali…',['mengesahkan UUD 1945','memilih Soekarno dan Hatta sebagai Presiden dan Wakil Presiden','membentuk Komite Nasional Indonesia Pusat','membentuk BPUPKI','mengesahkan Pancasila sebagai dasar negara dalam Pembukaan UUD'],3,'BPUPKI dibentuk sebelum proklamasi, pada masa pendudukan Jepang. Sidang PPKI 18 Agustus mengesahkan UUD, memilih presiden dan wakil presiden, serta menetapkan KNIP.');
+W('Peristiwa Rengasdengklok pada 16 Agustus 1945 terjadi karena…',['golongan muda mendesak Soekarno-Hatta segera memproklamasikan kemerdekaan','Jepang menyerahkan kekuasaan kepada Indonesia','Sekutu mendarat di Jakarta','Soekarno-Hatta ditangkap Belanda','BPUPKI dibubarkan'],0,'Golongan muda membawa Soekarno dan Hatta ke Rengasdengklok agar terlepas dari pengaruh Jepang dan segera memproklamasikan kemerdekaan.');
+W('Berdirinya Budi Utomo pada 20 Mei 1908 menjadi tonggak…',['Kebangkitan Nasional','Sumpah Pemuda','Proklamasi Kemerdekaan','Reformasi','Perang Kemerdekaan'],0,'Budi Utomo adalah organisasi modern pertama. Tanggal berdirinya diperingati sebagai Hari Kebangkitan Nasional.');
+W('Dalam nilai dasar ASN BerAKHLAK, huruf “H” bermakna…',['Harmonis','Hemat','Handal','Humanis','Hormat'],0,'BerAKHLAK: Berorientasi Pelayanan, Akuntabel, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif.');
+W('Berikut yang bukan fungsi ASN menurut undang-undang tentang ASN adalah…',['pelaksana kebijakan publik','pelayan publik','perekat dan pemersatu bangsa','penguasa dan penentu kebijakan politik','pelaksana kebijakan yang ditetapkan pimpinan'],3,'Fungsi ASN: pelaksana kebijakan publik, pelayan publik, serta perekat dan pemersatu bangsa. ASN bersifat netral, bukan penentu kebijakan politik.');
+W('Teori pemisahan kekuasaan (trias politica) yang membagi kekuasaan menjadi eksekutif, legislatif, dan yudikatif dirumuskan oleh…',['Montesquieu','John Locke','Jean-Jacques Rousseau','Thomas Hobbes','Plato'],0,'Locke membagi kekuasaan menjadi legislatif, eksekutif, dan federatif. Montesquieu menyempurnakannya menjadi tiga cabang termasuk yudikatif.');
+W('Menurut Pasal 33 ayat (3) UUD NRI 1945, bumi, air, dan kekayaan alam dikuasai negara untuk…',['sebesar-besarnya kemakmuran rakyat','keperluan pemerintah','kepentingan investor','dijual kepada pihak asing','pendapatan pemerintah daerah'],0,'Pasal 33 ayat (3) menegaskan bahwa sumber daya alam dikuasai negara dan dipergunakan untuk sebesar-besarnya kemakmuran rakyat.');
+W('Sikap paling tepat dalam menghadapi arus globalisasi budaya adalah…',['menyaring budaya asing dan mengambil yang sesuai nilai Pancasila','menolak semua budaya asing','menerima semua budaya asing','meninggalkan budaya daerah','meniru gaya hidup negara maju sepenuhnya'],0,'Globalisasi perlu disikapi selektif: ambil yang positif dan sesuai nilai bangsa, tanpa kehilangan jati diri.');
+W('Majelis Permusyawaratan Rakyat (MPR) terdiri atas…',['anggota DPR dan anggota DPD','anggota DPR dan Presiden','DPR, DPD, dan DPRD','Presiden dan Wakil Presiden','DPR dan para menteri'],0,'Pasal 2 ayat (1) UUD NRI 1945: MPR terdiri atas anggota DPR dan anggota DPD yang dipilih melalui pemilu.');
+W('Asas pemilihan umum di Indonesia yang tidak termasuk dalam “luber jurdil” adalah…',['bebas','rahasia','jujur','wajib','umum'],3,'Luber jurdil: langsung, umum, bebas, rahasia, jujur, dan adil. Asas “wajib” tidak termasuk di dalamnya.');
+W('Lagu Indonesia Raya pertama kali diperdengarkan pada…',['Kongres Pemuda II, 28 Oktober 1928','sidang BPUPKI','upacara proklamasi 17 Agustus 1945','Konferensi Asia Afrika','sidang PPKI'],0,'W.R. Supratman memperdengarkan lagu ini dengan biola pada penutupan Kongres Pemuda II.');
+W('Pemerintahan daerah menjalankan otonomi dengan prinsip…',['otonomi seluas-luasnya, kecuali urusan yang ditentukan sebagai urusan pemerintah pusat','otonomi terbatas hanya di tingkat provinsi','sentralisasi penuh','federalisme','dekonsentrasi penuh tanpa desentralisasi'],0,'Pasal 18 ayat (5) UUD NRI 1945: otonomi seluas-luasnya, kecuali urusan pemerintahan yang oleh undang-undang ditentukan sebagai urusan pemerintah pusat.');
+W('Dua kelompok warga berselisih karena perbedaan pandangan politik. Sikap yang sesuai dengan sila Persatuan Indonesia adalah…',['mengutamakan musyawarah dan menjaga persatuan','memihak kelompok yang sepandangan','membiarkan perselisihan membesar','menyelesaikan dengan kekerasan','menjauhi kedua kelompok'],0,'Sila ketiga menempatkan persatuan di atas kepentingan golongan. Perbedaan pandangan diselesaikan lewat musyawarah.');
+W('Wawasan Nusantara adalah cara pandang bangsa Indonesia terhadap diri dan lingkungannya yang berlandaskan…',['Pancasila dan UUD 1945 dengan mengutamakan kesatuan wilayah dan persatuan bangsa','kepentingan daerah masing-masing','kepentingan ekonomi global','hukum internasional semata','kekuatan militer'],0,'Wawasan Nusantara berlandaskan Pancasila dan UUD 1945 serta memandang wilayah Indonesia sebagai satu kesatuan politik, ekonomi, sosial budaya, serta pertahanan dan keamanan.');
+
+/* ---------- TIU (35) ---------- */
+U('Sinonim LUGAS adalah…',['Terus terang','Berbelit','Samar','Panjang lebar','Santun'],0,'Lugas berarti apa adanya dan tidak berbelit-belit. Padanannya terus terang.');
+U('Sinonim ARIF adalah…',['Bijaksana','Cerdik','Pandai berbicara','Sombong','Rajin'],0,'Arif berarti bijaksana, tahu mana yang patut dan tidak. Cerdik lebih mengarah ke kecepatan akal.');
+U('Sinonim MANGKUS adalah…',['Efektif','Efisien','Murah','Cepat','Hemat'],0,'Mangkus berarti efektif atau berhasil guna. Efisien adalah sangkil, jadi hati-hati dengan jebakan ini.');
+U('Antonim ABSTRAK adalah…',['Konkret','Ilmiah','Samar','Ringkas','Rumit'],0,'Abstrak berarti tidak berwujud. Lawan katanya konkret, yaitu nyata dan dapat diamati.');
+U('Antonim HETEROGEN adalah…',['Homogen','Beragam','Majemuk','Plural','Campuran'],0,'Heterogen berarti beraneka ragam. Lawannya homogen, yaitu sejenis atau seragam.');
+U('Antonim KIKIR adalah…',['Dermawan','Hemat','Cermat','Pelit','Tamak'],0,'Kikir berarti pelit. Lawannya dermawan atau murah hati. Hemat bukan lawan kikir karena bernilai positif.');
+U('Analogi: Guru : Sekolah = Dokter : …',['Rumah sakit','Obat','Pasien','Perawat','Stetoskop'],0,'Pola: profesi dan tempat kerjanya. Guru bekerja di sekolah, dokter bekerja di rumah sakit.');
+U('Analogi: Padi : Beras = Tebu : …',['Gula','Manis','Kebun','Petani','Tetes'],0,'Pola: bahan baku dan hasil olahan utamanya. Padi diolah menjadi beras, tebu menjadi gula.');
+U('Analogi: Pisau : Memotong = Pena : …',['Menulis','Kertas','Tinta','Menggambar','Siswa'],0,'Pola: alat dan fungsi utamanya. Pisau untuk memotong, pena untuk menulis.');
+U('Bacalah paragraf berikut.\nKebiasaan membaca 20 menit setiap hari terlihat sepele, tetapi dalam setahun seseorang dapat menamatkan belasan buku. Pengetahuan yang menumpuk sedikit demi sedikit membuat cara berpikirnya lebih tajam. Karena itu, konsistensi lebih penting daripada durasi panjang yang jarang dilakukan.\n\nGagasan utama paragraf tersebut adalah…',['Konsistensi membaca meski singkat membawa manfaat besar','Membaca harus dilakukan berjam-jam','Buku sebaiknya ditamatkan dalam setahun','Membaca hanya bermanfaat bagi pelajar','Berpikir tajam tidak berkaitan dengan membaca'],0,'Kalimat terakhir merangkum inti paragraf: konsistensi lebih penting daripada durasi. Kalimat lain hanya mendukung gagasan itu.');
+U('Lanjutkan deret: 2, 5, 10, 17, 26, …',['35','36','37','38','40'],2,'Selisih antarsuku: 3, 5, 7, 9, lalu 11. Maka 26 + 11 = 37. (Pola n² + 1.)');
+U('Lanjutkan deret: 5, 9, 17, 33, …',['49','57','65','66','81'],2,'Setiap suku dikali 2 lalu dikurangi 1. Jadi 33 × 2 − 1 = 65.');
+U('Lanjutkan deret: 2, 6, 18, 54, …',['108','126','144','162','216'],3,'Setiap suku dikali 3. Jadi 54 × 3 = 162.');
+U('Lanjutkan deret: 100, 95, 85, 70, …',['60','55','50','45','40'],2,'Pengurangnya naik: 5, 10, 15, lalu 20. Jadi 70 − 20 = 50.');
+U('Lanjutkan deret: 1, 1, 2, 3, 5, 8, …',['11','12','13','14','15'],2,'Deret Fibonacci: setiap suku adalah jumlah dua suku sebelumnya. 5 + 8 = 13.');
+U('25% dari 480 adalah…',['100','110','120','125','140'],2,'25% sama dengan 1/4. 480 ÷ 4 = 120.');
+U('Nilai rata-rata dari 70, 80, 90, 60, dan 100 adalah…',['75','78','80','82','85'],2,'Jumlah = 70 + 80 + 90 + 60 + 100 = 400. Rata-rata = 400 ÷ 5 = 80.');
+U('Uang Rina dan Sari berbanding 3 : 5. Jika jumlahnya Rp800.000, uang Sari adalah…',['Rp300.000','Rp400.000','Rp480.000','Rp500.000','Rp600.000'],3,'Total ada 3 + 5 = 8 bagian. Satu bagian = Rp100.000. Sari memegang 5 bagian = Rp500.000.');
+U('Sebuah mobil melaju 60 km/jam selama 2,5 jam. Jarak yang ditempuh adalah…',['120 km','135 km','150 km','160 km','180 km'],2,'Jarak = kecepatan × waktu = 60 × 2,5 = 150 km.');
+U('Ani menyelesaikan suatu pekerjaan dalam 12 hari, Budi dalam 6 hari. Jika bekerja bersama, pekerjaan selesai dalam…',['3 hari','4 hari','5 hari','6 hari','9 hari'],1,'Laju gabungan per hari: 1/12 + 1/6 = 3/12 = 1/4. Jadi selesai dalam 4 hari.');
+U('Harga sepatu Rp250.000 didiskon 20%, lalu didiskon lagi 10% dari harga setelah diskon pertama. Harga akhirnya adalah…',['Rp175.000','Rp180.000','Rp187.500','Rp190.000','Rp200.000'],1,'250.000 × 0,8 = 200.000. Lalu 200.000 × 0,9 = 180.000. Diskon bertingkat tidak dijumlah menjadi 30% (itu menghasilkan Rp175.000).');
+U('Modal Rp2.000.000 dibungakan dengan bunga tunggal 6% per tahun. Bunga setelah 3 tahun adalah…',['Rp240.000','Rp300.000','Rp360.000','Rp400.000','Rp420.000'],2,'Bunga = 2.000.000 × 6% × 3 = Rp360.000.');
+U('KPK dari 12 dan 18 adalah…',['6','24','36','54','72'],2,'12 = 2² × 3 dan 18 = 2 × 3². KPK mengambil pangkat tertinggi: 2² × 3² = 36.');
+U('Jumlah umur ayah dan anak adalah 50 tahun. Jika umur ayah 4 kali umur anak, umur anak adalah…',['8','10','12','15','20'],1,'Misal anak = x, ayah = 4x. Maka 5x = 50, sehingga x = 10 tahun.');
+U('3/4 + 2/3 = …',['5/7','17/12','13/12','7/12','5/6'],1,'Samakan penyebut menjadi 12: 9/12 + 8/12 = 17/12. Menjumlah pembilang dan penyebut langsung (5/7) adalah kesalahan umum.');
+U('Semua ASN adalah warga negara Indonesia. Budi adalah ASN. Kesimpulan yang tepat adalah…',['Budi adalah warga negara Indonesia','Semua warga negara Indonesia adalah ASN','Budi bukan warga negara Indonesia','Sebagian ASN bukan warga negara Indonesia','Tidak ada kesimpulan yang dapat ditarik'],0,'Budi termasuk ASN, dan semua ASN adalah warga negara Indonesia. Maka Budi warga negara Indonesia. Pilihan kedua membalik premis, dan itu tidak sah.');
+U('Jika hujan turun, jalanan basah. Jalanan tidak basah. Kesimpulan yang pasti benar adalah…',['Hujan tidak turun','Hujan turun','Jalanan kering karena cuaca panas','Mungkin hujan turun','Hujan turun sebentar'],0,'Ini modus tollens: p → q dan bukan q, maka bukan p. Karena jalanan tidak basah, hujan pasti tidak turun.');
+U('Semua peserta ujian membawa KTP. Sebagian peserta ujian membawa pensil. Kesimpulan yang pasti benar adalah…',['Sebagian pembawa KTP membawa pensil','Semua pembawa KTP membawa pensil','Semua pembawa pensil bukan peserta','Tidak ada pembawa pensil yang membawa KTP','Sebagian peserta tidak membawa KTP'],0,'Peserta yang membawa pensil adalah peserta ujian, jadi pasti membawa KTP. Maka ada pembawa KTP yang membawa pensil.');
+U('Tidak ada burung yang berkaki empat. Semua ayam adalah burung. Kesimpulan yang tepat adalah…',['Tidak ada ayam yang berkaki empat','Sebagian ayam berkaki empat','Semua ayam berkaki empat','Semua burung adalah ayam','Sebagian burung berkaki empat'],0,'Ayam termasuk burung, dan burung tidak ada yang berkaki empat. Maka tidak ada ayam yang berkaki empat.');
+U('Dina lebih tua dari Eka. Eka lebih tua dari Fani. Gita lebih muda dari Fani. Pernyataan yang pasti benar adalah…',['Dina lebih tua dari Gita','Gita lebih tua dari Eka','Fani lebih muda dari Gita','Eka lebih muda dari Gita','Dina dan Gita sebaya'],0,'Urutan dari yang tertua: Dina > Eka > Fani > Gita. Jadi Dina pasti lebih tua dari Gita.');
+U('Lima orang A, B, C, D, dan E antre. B tepat di depan A, C tepat di belakang A, D di depan B, dan E di belakang C. Siapa yang berada di urutan ketiga dari depan?',['A','B','C','D','E'],0,'Susun urutan: D, B, A, C, E. Urutan ketiga adalah A.');
+U('Kemarin lusa adalah hari Selasa. Lusa adalah hari…',['Jumat','Sabtu','Minggu','Kamis','Senin'],1,'Kemarin lusa = 2 hari lalu = Selasa, jadi hari ini Kamis. Lusa = 2 hari lagi = Sabtu.');
+U('Pola huruf: A, C, F, J, …',['M','N','O','P','Q'],2,'Lompatan antarhuruf bertambah: +2, +3, +4, lalu +5. A(1), C(3), F(6), J(10), maka berikutnya urutan ke-15 yaitu O.');
+U('Jika MEJA dikode menjadi NFKB, maka BUKU dikode menjadi…',['CVLV','CVMV','CULV','BVLV','DWLW'],0,'Setiap huruf bergeser satu huruf ke depan. B → C, U → V, K → L, U → V, sehingga CVLV.');
+U('Dari 40 orang, 25 orang suka kopi, 20 orang suka teh, dan 8 orang tidak suka keduanya. Banyak orang yang suka keduanya adalah…',['10','12','13','15','17'],2,'Yang suka minimal salah satu = 40 − 8 = 32. Rumus: 25 + 20 − x = 32, maka x = 13.');
+
+/* ---------- TKP (35), skor 1-5 per pilihan ---------- */
+K('Jam istirahat sudah dimulai ketika seorang warga datang mengurus dokumen. Petugas lain sedang tidak berada di tempat. Sikapmu…',[['Melayani warga lebih dulu, lalu istirahat setelahnya',5],['Mengarahkan warga ke petugas lain yang sedang bertugas',4],['Meminta warga menunggu sampai istirahat selesai sambil menyebut perkiraan waktu',3],['Meminta warga datang kembali besok',2],['Melanjutkan istirahat karena itu hak pegawai',1]],'Pelayanan publik. Kepentingan warga yang sudah datang didahulukan, istirahat bisa diganti setelahnya.');
+K('Warga marah karena antrean terasa terlalu lama. Sikapmu…',[['Mendengarkan, meminta maaf atas ketidaknyamanan, menjelaskan prosesnya, dan mempercepat bila memungkinkan',5],['Menjelaskan prosedur antrean dan meminta warga bersabar',4],['Meminta petugas keamanan menenangkan warga',3],['Membiarkan karena sudah sesuai urutan',2],['Membalas dengan nada tinggi agar warga paham aturan',1]],'Pelayanan publik. Empati dan solusi nyata mengurangi emosi, sedangkan membalas dengan emosi merusak citra instansi.');
+K('Saat mengerjakan tugas penting, atasan memberi tugas mendadak dengan tenggat yang sama. Sikapmu…',[['Menyampaikan kondisi pekerjaan ke atasan dan meminta arahan prioritas',5],['Mengerjakan keduanya dengan lembur dan meminta bantuan rekan',4],['Menyelesaikan tugas awal lebih dahulu, baru tugas baru',3],['Mengerjakan tugas baru saja karena berasal dari atasan',2],['Menolak tugas baru',1]],'Profesionalisme. Komunikasi dua arah soal prioritas lebih aman daripada memutuskan sendiri atau menolak.');
+K('Kamu menemukan kesalahan data pada laporan yang sudah dikirim ke atasan, dan belum ada yang menyadarinya. Sikapmu…',[['Segera melapor ke atasan, memperbaiki, lalu mengirim revisi',5],['Meminta rekan memeriksa lalu mengirim revisi sebelum atasan tahu',4],['Memperbaiki dan mengirim ulang tanpa menyebut ada kesalahan',3],['Menunggu sampai ada yang menanyakan',2],['Membiarkan karena kesalahannya dianggap kecil',1]],'Integritas. Mengakui kesalahan lebih awal menjaga kepercayaan dan membuat dampaknya bisa dicegah.');
+K('Seorang pemohon menawarkan uang terima kasih setelah kamu membantu mempercepat proses perizinannya. Sikapmu…',[['Menolak dengan sopan, menjelaskan aturan gratifikasi, dan melapor sesuai prosedur',5],['Menolak dengan sopan',4],['Menerima, lalu menyerahkannya ke kantor',3],['Menerima karena diberikan secara sukarela',2],['Menerima dan membaginya dengan rekan kantor',1]],'Integritas. Pemberian terkait jabatan harus ditolak dan dilaporkan sesuai aturan gratifikasi.');
+K('Seorang rekan sering datang terlambat sehingga pekerjaan tim terganggu. Sikapmu…',[['Mengajaknya bicara pribadi untuk memahami kendalanya dan mencari solusi bersama',5],['Mengingatkannya lewat pesan singkat',4],['Melaporkan ke atasan tanpa bicara dulu',3],['Menyampaikannya di rapat tim di depan semua orang',2],['Membiarkan agar tidak timbul konflik',1]],'Jejaring kerja. Bicara langsung dan pribadi menjaga hubungan kerja sekaligus menyelesaikan masalah.');
+K('Kamu ditugaskan memakai aplikasi baru yang belum kamu kuasai. Sikapmu…',[['Belajar mandiri lewat panduan, berlatih, dan bertanya pada rekan yang sudah paham',5],['Meminta rekan mengajari saat ada waktu',4],['Menunggu pelatihan resmi',3],['Tetap memakai cara lama',2],['Meminta tugas itu dialihkan ke orang lain',1]],'TIK. Inisiatif belajar teknologi baru menunjukkan adaptasi, tanpa menunggu diajari.');
+K('Pesan berantai di grup WhatsApp kantor memuat kabar yang kebenarannya belum jelas. Sikapmu…',[['Memeriksa kebenarannya lewat sumber resmi, lalu meluruskan di grup',5],['Memeriksa kebenarannya dan tidak menyebarkan pesan itu',4],['Diam saja',3],['Meneruskan dengan catatan “belum tentu benar”',2],['Meneruskan karena banyak yang sudah membagikan',1]],'TIK. ASN perlu menahan diri menyebar informasi tanpa verifikasi dan membantu meluruskan hoaks.');
+K('Dalam rapat, idemu ditolak dan ide rekan yang dipilih. Sikapmu…',[['Menerima keputusan, mendukung pelaksanaannya, dan mencatat masukan untuk perbaikan',5],['Menerima keputusan, lalu menanyakan alasannya di luar rapat',4],['Menerima dengan setengah hati',3],['Mengajukan ulang ideku di rapat berikutnya',2],['Tidak mau terlibat dalam pelaksanaannya',1]],'Jejaring kerja. Keputusan bersama didukung penuh, sambil belajar dari alasan di baliknya.');
+K('Warga di lingkunganmu berbeda keyakinan menggelar kegiatan ibadah, dan sebagian warga menolaknya. Sikapmu…',[['Mengajak warga berdialog dan mengingatkan hak setiap orang untuk beribadah serta pentingnya saling menghargai',5],['Melapor ke ketua RT agar dimediasi',4],['Menyerahkannya kepada tokoh masyarakat',3],['Tidak ikut campur',2],['Ikut menolak agar situasi tenang',1]],'Sosial budaya. Kebebasan beribadah dilindungi, dan ASN berperan merekatkan masyarakat lewat dialog.');
+K('Rekan baru berlogat daerah yang berbeda ditirukan dan ditertawakan oleh rekan lain. Sikapmu…',[['Menegur dengan halus dan mengajak rekan menghargai perbedaan',5],['Mendekati rekan baru dan mengajaknya mengobrol',4],['Mengalihkan topik pembicaraan',3],['Diam saja',2],['Ikut tertawa',1]],'Sosial budaya. Menghargai keberagaman berarti berani meluruskan perilaku yang merendahkan.');
+K('Rekan memintamu memalsukan tanda tangan atasan agar dokumen cepat selesai. Sikapmu…',[['Menolak, menyarankan meminta tanda tangan lewat prosedur resmi, dan mengingatkan risikonya',5],['Menolak tanpa memberi saran',4],['Menyarankan menghubungi atasan lewat perantara',3],['Membantu bila sangat mendesak',2],['Membantu agar cepat selesai',1]],'Integritas. Pemalsuan dokumen tidak boleh dilakukan dengan alasan apa pun.');
+K('Atasan memintamu membuat laporan perjalanan dinas fiktif agar sisa anggaran terserap. Sikapmu…',[['Menolak dengan sopan, menjelaskan risikonya, dan mengusulkan sisa anggaran dikembalikan sesuai aturan',5],['Menolak dan melaporkan ke unit pengawasan',4],['Menolak tanpa memberi solusi',3],['Menurut karena perintah atasan',2],['Membuatnya dan meminta bagian dari anggaran itu',1]],'Integritas. Menolak secara santun sambil menawarkan jalan keluar yang sesuai aturan.');
+K('Kamu mengetahui rekan memakai mobil dinas untuk keperluan pribadi. Sikapmu…',[['Menegurnya secara pribadi, dan melapor ke atasan bila terulang',5],['Langsung melapor ke atasan',4],['Mengingatkannya lewat candaan',3],['Membiarkan',2],['Ikut memakainya',1]],'Integritas. Teguran pribadi lebih dulu memberi kesempatan memperbaiki, dengan pelaporan bila tidak berubah.');
+K('Pekerjaan tim menumpuk sementara satu anggota tim sedang sakit. Sikapmu…',[['Mengambil sebagian tugasnya, membagi prioritas, dan memantau agar target tim tercapai',5],['Meminta rekan lain ikut membagi tugas',4],['Mengerjakan bagianku saja',3],['Menunggu rekan itu sembuh',2],['Mengeluh ke atasan soal beban kerja',1]],'Jejaring kerja. Kerja sama tim berarti menjaga target bersama saat ada yang berhalangan.');
+K('Instansimu mengadakan lomba inovasi layanan, dan kamu punya ide tetapi ragu. Sikapmu…',[['Menyusun proposal, meminta masukan senior, lalu mengikuti lomba',5],['Mengikuti lomba dengan ide yang disiapkan seadanya',4],['Menyampaikan ide ke rekan agar mereka yang ikut',3],['Menunggu diminta ikut',2],['Tidak ikut',1]],'Profesionalisme. Inisiatif dan kemauan berkembang tampak dari keberanian mencoba dengan persiapan matang.');
+K('Atasan mengkritik keras laporanmu di depan rekan-rekan. Sikapmu…',[['Mendengarkan, berterima kasih atas masukan, lalu memperbaiki dan menanyakan rinciannya',5],['Menerima, lalu menyampaikan keberatan atas cara penyampaiannya secara pribadi',4],['Membela diri dengan sopan saat itu juga',3],['Diam dan tidak memperbaiki',2],['Membalas dengan kasar',1]],'Profesionalisme. Kritik dipandang sebagai bahan perbaikan, dan keberatan disampaikan di waktu yang tepat.');
+K('Kamu melihat keran di toilet kantor bocor. Sikapmu…',[['Segera melapor ke bagian umum dan menutup keran sementara',5],['Melapor ke bagian umum',4],['Memberi tahu rekan agar dilaporkan',3],['Menunggu ada orang lain yang melapor',2],['Menyalahkan bagian umum yang tidak teliti',1]],'Profesionalisme. Rasa memiliki terhadap fasilitas kantor ditunjukkan dengan tindakan segera dan tepat sasaran.');
+K('Seorang warga lanjut usia kebingungan dengan pendaftaran layanan secara daring. Sikapmu…',[['Membantu mendaftarkan langkah demi langkah dengan sabar',5],['Memberikan brosur panduan lalu mendampingi seperlunya',4],['Mengarahkan ke loket lain',3],['Menyuruh mencoba sendiri',2],['Menolak karena prosedur memang daring',1]],'Pelayanan publik. Pelayanan yang ramah kelompok rentan menjadi ukuran kualitas.');
+K('Kamu diminta bekerja sama dengan unit lain yang sedang berselisih dengan unitmu. Sikapmu…',[['Menemui perwakilan unit itu, fokus pada tujuan bersama, dan menyusun kesepakatan kerja',5],['Meminta atasan memfasilitasi pertemuan',4],['Berkoordinasi seperlunya lewat surat',3],['Menunggu unit lain memulai',2],['Menolak bekerja sama',1]],'Jejaring kerja. Inisiatif membangun komunikasi lintas unit dan menempatkan tujuan bersama di atas ego.');
+K('Rekanmu kewalahan membuat laporan memakai aplikasi pengolah data, sedangkan kamu mahir. Sikapmu…',[['Menawarkan bantuan dan mengajarinya agar bisa mandiri',5],['Menawarkan bantuan mengerjakan sebagian',4],['Membantu hanya jika diminta',3],['Membiarkan karena itu tanggung jawabnya',2],['Menertawakannya',1]],'TIK. Berbagi kemampuan meningkatkan kapasitas tim, bukan hanya menyelesaikan tugas hari itu.');
+K('Ada pelatihan akhir pekan untuk meningkatkan kompetensi, sementara jadwalmu padat. Sikapmu…',[['Mengatur jadwal agar bisa ikut dan menerapkan materinya dalam pekerjaan',5],['Ikut sebagian sesi',4],['Meminta materi dari rekan yang ikut',3],['Tidak ikut karena di luar jam kerja',2],['Memalsukan daftar hadir agar terdata ikut',1]],'Profesionalisme. Pengembangan diri adalah bagian dari tanggung jawab ASN.');
+K('Kerabat meminta bocoran isi dokumen internal kantor yang bersifat rahasia. Sikapmu…',[['Menolak dengan halus dan menjelaskan bahwa itu rahasia jabatan',5],['Menolak tanpa penjelasan',4],['Memberi informasi umum saja',3],['Memberikannya dengan syarat tidak disebarkan',2],['Memberikannya',1]],'Integritas. Rahasia jabatan tidak boleh dibuka kepada pihak yang tidak berwenang, sekalipun keluarga.');
+K('Seorang rekan mengajakmu ikut kampanye politik praktis pada jam kerja dengan memakai atribut kantor. Sikapmu…',[['Menolak karena ASN wajib netral dan mengingatkan aturannya',5],['Menolak tanpa menjelaskan alasan',4],['Ikut di luar jam kerja tanpa atribut kantor',3],['Menghindar tanpa memberi jawaban',2],['Ikut karena diajak teman',1]],'Integritas. ASN wajib netral dan tidak terlibat politik praktis.');
+K('Seorang warga menanyakan layanan yang bukan wewenang unitmu. Sikapmu…',[['Menjelaskan unit yang berwenang, mengantarnya, dan memberi tahu persyaratan yang perlu dibawa',5],['Menunjukkan lokasi unit yang berwenang',4],['Menyarankan bertanya ke bagian informasi',3],['Mengatakan tidak tahu',2],['Mengabaikan',1]],'Pelayanan publik. Pelayanan tuntas berarti memastikan warga sampai ke tempat yang tepat.');
+K('Atasan memuji hasil kerjamu, padahal timmu ikut berkontribusi besar. Sikapmu…',[['Berterima kasih dan menyampaikan bahwa ini hasil kerja tim, sambil menyebut kontribusi anggota',5],['Menerima pujian, lalu meneruskannya ke tim setelahnya',4],['Diam saja',3],['Menerima pujian tanpa menyebut tim',2],['Mengaku itu murni ideku',1]],'Jejaring kerja. Mengakui kontribusi orang lain membangun kepercayaan dan semangat tim.');
+K('Sistem layanan daring mengalami gangguan saat banyak warga menunggu. Sikapmu…',[['Menenangkan warga, mengalihkan ke layanan manual, dan melapor ke tim TI',5],['Melapor ke tim TI dan meminta warga menunggu',4],['Meminta warga kembali besok',3],['Menunggu sistem normal kembali',2],['Menyalahkan tim TI di depan warga',1]],'TIK dan pelayanan publik. Layanan harus tetap berjalan lewat cara alternatif saat sistem bermasalah.');
+K('Kamu menerima tugas dengan petunjuk yang kurang jelas. Sikapmu…',[['Bertanya ke atasan untuk memperjelas dan mencatat target yang diharapkan',5],['Mencari contoh pekerjaan serupa sebagai acuan',4],['Mengerjakan berdasarkan asumsi sendiri',3],['Menunggu petunjuk tambahan',2],['Mengerjakan sesuka hati',1]],'Profesionalisme. Memastikan ekspektasi sejak awal menghindari pekerjaan ulang.');
+K('Seorang rekan baru tampak kesulitan beradaptasi di kantor. Sikapmu…',[['Mengajaknya berkenalan dan mendampinginya mengenal budaya kerja',5],['Memberinya informasi tertulis tentang aturan kantor',4],['Menyapanya saat bertemu',3],['Menunggu dia yang datang bertanya',2],['Membiarkan, karena nanti juga terbiasa',1]],'Sosial budaya. Sikap terbuka dan ramah membantu pegawai baru cepat menyatu.');
+K('Ada permintaan lembur untuk menyelesaikan proyek mendesak yang berdampak pada layanan masyarakat. Sikapmu…',[['Bersedia dan mengatur waktu agar kerja tetap produktif',5],['Bersedia dengan syarat kejelasan uang lembur',4],['Bersedia hanya satu hari',3],['Menolak',2],['Menolak dan mengajak rekan lain ikut menolak',1]],'Profesionalisme. Kesiapan menjaga kualitas layanan publik saat dibutuhkan.');
+K('Sebelum diserahkan, kamu menemukan nama warga salah ketik pada sertifikat yang sudah selesai dicetak. Sikapmu…',[['Menahan dokumen, memperbaiki, memverifikasi ulang, lalu menyerahkannya',5],['Memperbaiki sendiri tanpa verifikasi',4],['Meminta rekan memeriksa saja',3],['Menyerahkan karena sudah terlambat',2],['Membiarkan, nanti warga yang mengurus',1]],'Pelayanan publik. Ketelitian dan tanggung jawab memastikan dokumen yang diterima warga benar.');
+K('Dalam rapat lintas instansi, pendapatmu berbeda dengan wakil instansi lain. Sikapmu…',[['Menyampaikan pendapat disertai data, mendengar masukan, dan mencari titik temu',5],['Menyampaikan pendapat lalu mengikuti keputusan mayoritas',4],['Diam saja',3],['Memaksakan pendapat sampai diterima',2],['Meninggalkan rapat',1]],'Jejaring kerja. Berbeda pendapat dilakukan dengan data dan sikap terbuka, bukan dengan memaksa.');
+K('Kamu ditempatkan di daerah terpencil dengan fasilitas terbatas. Sikapmu…',[['Menerima dan beradaptasi, membangun hubungan dengan masyarakat, dan tetap bekerja optimal',5],['Menerima dan berusaha pindah setelah masa tugas',4],['Menerima sambil sering mengeluh',3],['Meminta mutasi secepatnya',2],['Menolak penempatan',1]],'Sosial budaya. ASN siap ditempatkan di mana pun dan menjadi bagian dari masyarakat setempat.');
+K('Isu SARA beredar di media sosial dan berpotensi memecah belah masyarakat. Sikapmu…',[['Tidak ikut menyebarkan, melaporkan konten ke platform, dan membagikan konten yang menyejukkan',5],['Tidak menyebarkan dan melaporkan konten',4],['Tidak berkomentar',3],['Mengomentari dengan nada marah',2],['Menyebarkan agar orang lain waspada',1]],'Anti radikalisme dan sosial budaya. Peran ASN adalah menjaga persatuan, bukan memperkeruh suasana.');
+K('Kamu mengetahui atasan langsungmu menyalahgunakan wewenang untuk keuntungan pribadi. Sikapmu…',[['Mengumpulkan bukti dan melapor lewat saluran pengaduan resmi',5],['Menegur atasan secara pribadi',4],['Menceritakannya pada rekan',3],['Diam demi keamanan karier',2],['Ikut menikmati keuntungannya',1]],'Integritas. Pelaporan lewat jalur resmi dan berbasis bukti melindungi pelapor sekaligus menegakkan aturan.');
+/* BANK-END */
+
+var CATS={
+  TWK:{name:'Tes Wawasan Kebangsaan',desc:'Pancasila, UUD 1945, sejarah, wawasan nusantara, dan nilai dasar ASN.'},
+  TIU:{name:'Tes Intelegensia Umum',desc:'Verbal, hitungan, dan logika. Pembahasan menunjukkan langkah pengerjaan.'},
+  TKP:{name:'Tes Karakteristik Pribadi',desc:'Situasi kerja sehari-hari. Tidak ada salah mutlak, tiap pilihan bernilai 1 sampai 5.'}
+};
+var ORDER=['TWK','TIU','TKP'];
+var L='ABCDE';
+var DUR=110*60000;
+var KEY='siap-skd-last';
+var app=document.getElementById('app');
+var S=null, view='home', timer=null;
+
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function fmt(ms){var s=Math.ceil(ms/1000);var m=Math.floor(s/60);return (m<10?'0':'')+m+':'+('0'+(s%60)).slice(-2);}
+function loadLast(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
+function saveLast(o){try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}}
+function count(c){return BANK.filter(function(q){return q.c===c;}).length;}
+
+function newItem(q){return {q:q,ord:shuffle(q.o.map(function(_,i){return i;})),ans:null,flag:false};}
+function best(q){return q.c==='TKP'?q.s.indexOf(Math.max.apply(null,q.s)):q.a;}
+function pts(it){if(it.ans==null)return 0;var q=it.q;return q.c==='TKP'?q.s[it.ans]:(it.ans===q.a?5:0);}
+function status(it){if(it.ans==null)return 'kosong';if(pts(it)===5)return 'ok';return it.q.c==='TKP'?'part':'salah';}
+
+function start(mode,list,cat){
+  S={mode:mode,items:list.map(newItem),idx:0,navOpen:false,confirm:false,filter:'all',cat:cat||null,spent:0,auto:false};
+  clearInterval(timer);timer=null;
+  if(mode==='sim'){S.end=Date.now()+DUR;timer=setInterval(tick,500);}
+  view='exam';render();window.scrollTo(0,0);
+}
+function startSim(){
+  var list=[];ORDER.forEach(function(c){list=list.concat(shuffle(BANK.filter(function(q){return q.c===c;})));});
+  start('sim',list);
+}
+function tick(){
+  if(!S||S.mode!=='sim'||view!=='exam')return;
+  var left=S.end-Date.now();
+  var el=document.getElementById('timer');
+  if(el){el.textContent=fmt(Math.max(0,left));el.className='timer'+(left<5*60000?' urgent':left<15*60000?' warn':'');}
+  if(left<=0)finish(true);
+}
+function finish(auto){
+  clearInterval(timer);timer=null;
+  if(S.mode==='sim')S.spent=Math.min(DUR,DUR-Math.max(0,S.end-Date.now()));
+  S.auto=!!auto;S.confirm=false;view='result';
+  var r=calc();
+  if(S.mode==='sim')saveLast({t:r.total,m:r.max,d:Date.now()});
+  render();window.scrollTo(0,0);
+}
+function calc(){
+  var by={};ORDER.forEach(function(c){by[c]={n:0,ok:0,sc:0,max:0,skip:0};});
+  var total=0,max=0,answered=0;
+  S.items.forEach(function(it){
+    var b=by[it.q.c];b.n++;b.max+=5;max+=5;
+    if(it.ans==null){b.skip++;}else{answered++;var p=pts(it);b.sc+=p;total+=p;if(p===5)b.ok++;}
+  });
+  return {by:by,total:total,max:max,answered:answered};
+}
+function go(i){S.idx=Math.max(0,Math.min(S.items.length-1,i));S.navOpen=false;render();window.scrollTo(0,0);}
+function pick(k){
+  var it=S.items[S.idx];var inst=S.mode!=='sim';
+  if(inst&&it.ans!=null)return;
+  var oi=it.ord[k];
+  it.ans=(!inst&&it.ans===oi)?null:oi;
+  render();
+}
+
+/* ---------- tampilan ---------- */
+var SVGA='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+var SUN=SVGA+'<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+var MOON=SVGA+'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+function curTheme(){
+  var t=document.documentElement.getAttribute('data-theme');
+  if(t==='dark'||t==='light')return t;
+  return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+}
+function toggleTheme(){
+  var n=curTheme()==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  try{localStorage.setItem('siap-skd-theme',n);}catch(e){}
+  render();
+}
+function topbar(inner){
+  var dark=curTheme()==='dark';
+  return '<header class="top"><div class="top-in">'+inner+'<button class="btn sm alt iconbtn" data-act="theme" title="Ganti ke mode '+(dark?'terang':'gelap')+'" aria-label="Ganti ke mode '+(dark?'terang':'gelap')+'">'+(dark?MOON:SUN)+'</button></div></header>';
+}
+function optHtml(it,k,locked,showAll){
+  var q=it.q,oi=it.ord[k],cls='',tag='';
+  var tkp=q.c==='TKP',bi=best(q);
+  if(locked){
+    if(tkp){
+      tag='<span class="tag">+'+q.s[oi]+'</span>';
+      if(oi===bi)cls=' ok';else if(oi===it.ans)cls=' mid';
+    }else{
+      if(oi===q.a){cls=' ok';tag='<span class="tag">Kunci</span>';}
+      else if(oi===it.ans){cls=' no';tag='<span class="tag">Pilihanmu</span>';}
+    }
+    if(tkp&&oi===it.ans)tag='<span class="tag">Pilihanmu +'+q.s[oi]+'</span>';
+  }else if(it.ans===oi)cls=' sel';
+  var attrs=showAll?' data-static="1"':' data-act="opt" data-k="'+k+'"';
+  var dis=locked?' aria-disabled="true"':'';
+  return '<button class="opt'+cls+'"'+attrs+dis+'><span class="ltr">'+L[k]+'</span><span class="txt">'+esc(q.o[oi])+'</span>'+tag+'</button>';
+}
+function explHtml(it){
+  var q=it.q,h='Pembahasan';
+  if(q.c==='TKP'&&it.ans!=null)h='Skormu '+q.s[it.ans]+' dari 5';
+  return '<div class="expl"><h4>'+h+'</h4><p>'+esc(q.e)+'</p></div>';
+}
+
+function home(){
+  var last=loadLast();
+  var lastTxt=last?'Skor simulasi terakhirmu: '+last.t+' dari '+last.m+' ('+new Date(last.d).toLocaleDateString('id-ID',{day:'numeric',month:'short'})+')':'';
+  var cats=ORDER.map(function(c){
+    return '<div class="cat"><div class="top-row"><span class="badge c-'+c+'">'+c+'</span><b>'+count(c)+' soal</b></div><h3>'+CATS[c].name+'</h3><p>'+CATS[c].desc+'</p><button class="btn alt sm" data-act="start-cat" data-c="'+c+'">Latih '+c+' saja</button></div>';
+  }).join('');
+  var rows=ORDER.map(function(c){return '<li><span class="badge c-'+c+'">'+c+'</span>'+CATS[c].name.replace('Tes ','')+'<span class="cnt">'+count(c)+'</span></li>';}).join('');
+  return topbar('<div class="brand"><span class="logo">S</span>Siap SKD</div>')+
+  '<main class="wrap"><section class="hero"><div><p class="kicker">Simulasi Seleksi Kompetensi Dasar CPNS</p>'+
+  '<h1>Latihan SKD yang <span class="hl">terasa seperti tes sungguhan</span></h1>'+
+  '<p class="lead">Kerjakan soal TWK, TIU, dan TKP dengan timer berjalan. Setiap jawaban yang keliru dilengkapi pembahasan, lalu kamu bisa mengulang soal yang belum tepat.</p>'+
+  '<div class="cta"><button class="btn big" data-act="start-sim">Mulai simulasi</button>'+(lastTxt?'<span class="last">'+lastTxt+'</span>':'')+'</div></div>'+
+  '<div class="ticket"><div class="t-top"><div class="t-big">'+BANK.length+'<small>soal</small></div><div class="t-big">110<small>menit</small></div></div><ul class="t-list">'+rows+'</ul></div></section>'+
+  '<section><h2>Atau latih satu kategori</h2><div class="cats">'+cats+'</div><p class="note" style="margin-top:-4px">Mode latihan tidak memakai timer dan langsung menampilkan pembahasan setelah kamu memilih jawaban.</p></section>'+
+  '<p class="note" style="margin-top:20px"><b>Tentang format.</b> Simulasi di sini memakai 100 soal dalam 110 menit (TWK 30, TIU 35, TKP 35). Tes SKD resmi memakai 110 soal dalam 100 menit, dengan TKP 45 soal. Skor TWK dan TIU: benar 5, salah 0. Skor TKP: tiap pilihan bernilai 1 sampai 5. Soal di sini adalah soal latihan buatan sendiri, bukan soal tes asli, dan ambang kelulusan resmi ditetapkan panitia tiap periode.</p></main>';
+}
+
+function exam(){
+  var it=S.items[S.idx],q=it.q,inst=S.mode!=='sim',total=S.items.length;
+  var done=S.items.filter(function(i){return i.ans!=null;}).length;
+  var locked=inst&&it.ans!=null;
+  var last=S.idx===total-1;
+  var bar=topbar('<div class="brand"><span class="logo">S</span>Siap SKD</div>'+
+    '<span class="mode">'+(inst?(S.cat?'Latihan '+S.cat:'Ulang soal yang belum tepat'):'Simulasi')+' · '+done+'/'+total+' terjawab</span>'+
+    (inst?'':'<span id="timer" class="timer'+'">'+fmt(Math.max(0,S.end-Date.now()))+'</span>')+
+    '<button class="btn sm" data-act="finish">Selesai</button>');
+  var tabs='';
+  if(!inst){
+    tabs='<div class="tabs">'+ORDER.map(function(c){
+      var arr=S.items.filter(function(i){return i.q.c===c;});
+      var d=arr.filter(function(i){return i.ans!=null;}).length;
+      return '<button class="tab'+(q.c===c?' on':'')+'" data-c="'+c+'" data-act="go" data-i="'+S.items.findIndex(function(i){return i.q.c===c;})+'">'+c+' <small>'+d+'/'+arr.length+'</small></button>';
+    }).join('')+'</div>';
+  }
+  var opts=it.ord.map(function(_,k){return optHtml(it,k,locked,false);}).join('');
+  var grid=S.items.map(function(x,i){
+    var cls='n';if(i===S.idx)cls+=' cur';
+    if(x.ans!=null){if(inst){var st=status(x);cls+=st==='ok'?' ok':st==='part'?' mid':' no';}else cls+=' done';}
+    if(x.flag)cls+=' flag';
+    return '<button class="'+cls+'" data-c="'+x.q.c+'" data-act="go" data-i="'+i+'" aria-label="Soal '+(i+1)+'">'+(i+1)+'</button>';
+  }).join('');
+  var nextBtn=last?'<button class="btn sp" data-act="finish">'+(inst?'Lihat hasil':'Selesai')+'</button>':'<button class="btn sp" data-act="next">Lanjut</button>';
+  var modal='';
+  if(S.confirm){
+    var left=total-done;
+    modal='<div class="veil"><div class="dlg" role="dialog" aria-modal="true"><h3>Selesaikan sekarang?</h3><p>'+(left>0?'Masih ada '+left+' soal yang belum dijawab. Soal kosong bernilai 0.':'Semua soal sudah dijawab.')+(inst?'':' Waktu tersisa '+fmt(Math.max(0,S.end-Date.now()))+'.')+'</p><div class="row"><button class="btn" data-act="confirm-yes">Ya, selesai</button><button class="btn alt" data-act="confirm-no">Lanjut mengerjakan</button></div></div></div>';
+  }
+  return bar+'<main class="wrap">'+tabs+
+  '<button class="btn alt sm navtoggle" data-act="toggle-nav">'+(S.navOpen?'Tutup':'Buka')+' daftar soal</button>'+
+  '<div class="layout has-side"><div><div class="card" data-c="'+q.c+'">'+
+  '<div class="q-head"><span class="badge c-'+q.c+'">'+q.c+'</span><span class="no">Soal '+(S.idx+1)+' dari '+total+'</span>'+
+  (inst?'':'<button class="btn sm alt sp flagbtn'+(it.flag?' on':'')+'" data-act="flag">'+(it.flag?'Ragu-ragu dicentang':'Tandai ragu-ragu')+'</button>')+'</div>'+
+  '<p class="q-text">'+esc(q.q)+'</p><div class="opts">'+opts+'</div>'+(locked?explHtml(it):'')+
+  '<div class="pager"><button class="btn alt" data-act="prev"'+(S.idx===0?' disabled':'')+'>Sebelumnya</button>'+nextBtn+'</div></div></div>'+
+  '<aside class="side'+(S.navOpen?' open':'')+'"><h3>Daftar soal</h3><div class="grid">'+grid+'</div>'+
+  '<div class="legend">'+(inst?'<span><i style="background:var(--good-bg)"></i>Tepat</span><span><i style="background:var(--warn-bg)"></i>Sebagian</span><span><i style="background:var(--bad-bg)"></i>Keliru</span>':'<span><i style="background:var(--tiu)"></i>Terjawab</span><span><i class="f"></i>Ragu-ragu</span><span><i></i>Belum</span>')+'</div></aside></div></main>'+modal;
+}
+
+function result(){
+  var r=calc(),pct=Math.round(r.total/r.max*100);
+  var notOk=S.items.filter(function(i){return status(i)!=='ok';}).length;
+  var msg=pct>=80?['Mantap sekali!','Penguasaanmu sudah kuat. Cek pembahasan soal yang masih meleset supaya makin rapi.']:pct>=60?['Bagus, tinggal diasah.','Fondasinya sudah ada. Pembahasan di bawah akan menunjukkan bagian yang paling layak diulang.']:['Awal yang baik.','Skor ini bahan belajar, bukan penilaian. Baca pembahasan, lalu ulangi soal yang belum tepat.'];
+  var bars=ORDER.filter(function(c){return r.by[c].n>0;}).map(function(c){
+    var b=r.by[c],p=Math.round(b.sc/b.max*100);
+    var sub=c==='TKP'?'Pilihan terbaik '+b.ok+' dari '+b.n+' soal':'Benar '+b.ok+' dari '+b.n+' soal';
+    if(b.skip)sub+=' · '+b.skip+' kosong';
+    return '<div class="bar-row"><div class="lab"><span><span class="badge c-'+c+'">'+c+'</span> '+CATS[c].name.replace('Tes ','')+'</span><span>'+b.sc+' / '+b.max+'</span></div><div class="track"><div class="fill c-'+c+'" style="width:'+p+'%"></div></div><div class="sub">'+sub+'</div></div>';
+  }).join('');
+  var time=S.mode==='sim'?'<span>Waktu terpakai <b>'+Math.floor(S.spent/60000)+' menit</b></span>':'';
+  return topbar('<div class="brand"><span class="logo">S</span>Siap SKD</div><span class="mode">Hasil</span>')+
+  '<main class="wrap"><div class="card">'+(S.auto?'<div class="banner">Waktu habis. Jawabanmu dikumpulkan otomatis.</div>':'')+
+  '<div class="score"><div class="big">'+r.total+'<small> / '+r.max+'</small></div><div><h2 style="margin-bottom:6px">'+msg[0]+'</h2><div style="max-width:32em">'+msg[1]+'</div></div></div>'+
+  '<div class="bars">'+bars+'</div>'+
+  '<div class="stats"><span>Terjawab <b>'+r.answered+'/'+S.items.length+'</b></span>'+time+'<span>Belum tepat <b>'+notOk+'</b></span></div>'+
+  '<div class="acts"><button class="btn" data-act="review">Lihat pembahasan</button>'+
+  (notOk?'<button class="btn alt" data-act="retry">Ulangi '+notOk+' soal yang belum tepat</button>':'')+
+  '<button class="btn alt" data-act="home">Kembali ke beranda</button></div>'+
+  '<p class="sub" style="margin-top:16px">Skor ini patokan latihan. Ambang kelulusan resmi berbeda tiap periode dan dihitung pada komposisi soal tes asli.</p></div></main>';
+}
+
+function review(){
+  var f=S.filter;
+  var chips=[['all','Semua'],['wrong','Belum tepat'],['TWK','TWK'],['TIU','TIU'],['TKP','TKP']].map(function(x){
+    return '<button class="chip'+(f===x[0]?' on':'')+'" data-act="filter" data-f="'+x[0]+'">'+x[1]+'</button>';
+  }).join('');
+  var rows=S.items.map(function(it,i){return {it:it,i:i};}).filter(function(o){
+    return f==='all'||(f==='wrong'?status(o.it)!=='ok':o.it.q.c===f);
+  });
+  var cards=rows.map(function(o){
+    var it=o.it,st=status(it),q=it.q;
+    var label=st==='ok'?(q.c==='TKP'?'Pilihan terbaik':'Benar'):st==='salah'?'Keliru':st==='part'?'Skor '+pts(it)+' dari 5':'Tidak dijawab';
+    var opts=it.ord.map(function(_,k){return optHtml(it,k,true,true);}).join('');
+    var ex=it.ans==null?'<div class="expl"><h4>Pembahasan</h4><p>'+esc(q.e)+'</p></div>':explHtml(it);
+    return '<div class="card" data-c="'+q.c+'"><div class="q-head"><span class="badge c-'+q.c+'">'+q.c+'</span><span class="no">Soal '+(o.i+1)+'</span><span class="pill '+st+' sp">'+label+'</span></div><p class="q-text">'+esc(q.q)+'</p><div class="opts">'+opts+'</div>'+ex+'</div>';
+  }).join('');
+  return topbar('<div class="brand"><span class="logo">S</span>Siap SKD</div><span class="mode">Pembahasan</span><button class="btn sm alt" data-act="back">Kembali ke hasil</button>')+
+  '<main class="wrap"><div class="filters">'+chips+'</div><div class="rv">'+(cards||'<div class="card empty">Tidak ada soal di filter ini. Semua sudah tepat.</div>')+'</div></main>';
+}
+
+function render(){
+  app.innerHTML=view==='home'?home():view==='exam'?exam():view==='result'?result():review();
+}
+
+app.addEventListener('click',function(e){
+  var b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  var a=b.dataset.act,d=b.dataset;
+  if(a==='theme')toggleTheme();
+  else if(a==='start-sim')startSim();
+  else if(a==='start-cat')start('cat',shuffle(BANK.filter(function(q){return q.c===d.c;})),d.c);
+  else if(a==='opt')pick(+d.k);
+  else if(a==='prev')go(S.idx-1);
+  else if(a==='next')go(S.idx+1);
+  else if(a==='go')go(+d.i);
+  else if(a==='flag'){S.items[S.idx].flag=!S.items[S.idx].flag;render();}
+  else if(a==='toggle-nav'){S.navOpen=!S.navOpen;render();}
+  else if(a==='finish'){S.confirm=true;render();}
+  else if(a==='confirm-yes')finish(false);
+  else if(a==='confirm-no'){S.confirm=false;render();}
+  else if(a==='review'){S.filter='wrong';view='review';render();window.scrollTo(0,0);}
+  else if(a==='filter'){S.filter=d.f;render();}
+  else if(a==='back'){view='result';render();window.scrollTo(0,0);}
+  else if(a==='retry'){var list=S.items.filter(function(i){return status(i)!=='ok';}).map(function(i){return i.q;});start('retry',shuffle(list),null);}
+  else if(a==='home'){view='home';S=null;render();window.scrollTo(0,0);}
+});
+document.addEventListener('keydown',function(e){
+  if(view!=='exam'||!S||S.confirm||e.metaKey||e.ctrlKey||e.altKey)return;
+  var k=e.key.toLowerCase();
+  var n=L.toLowerCase().indexOf(k);
+  if(k>='1'&&k<='5')n=+k-1;
+  if(n>=0&&n<S.items[S.idx].ord.length&&k.length===1)pick(n);
+  else if(e.key==='ArrowRight')go(S.idx+1);
+  else if(e.key==='ArrowLeft')go(S.idx-1);
+});
+
+try{var saved=localStorage.getItem('siap-skd-theme');if(saved==='dark'||saved==='light')document.documentElement.setAttribute('data-theme',saved);}catch(e){}
+render();
+})();
+</script>
+
+</body></html>
